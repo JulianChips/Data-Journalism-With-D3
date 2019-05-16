@@ -74,12 +74,16 @@ function renderYAxes(newYScale, yAxis){
 
 // function used for updating circles group with a transition to
 // new circles
-function renderCircles(circlesGroup, newXScale, newYScale, chosenXaxis, chosenYAxis) {
+function renderCircles(circlesGroup, abbrGroup, newXScale, newYScale, chosenXaxis, chosenYAxis) {
 
-  circlesGroup.transition()
-    .duration(1000)
-    .attr("cx", d => newXScale(d[chosenXAxis]))
-    .attr("cy",d => newYScale(d[chosenYAxis]));
+    circlesGroup.transition()
+        .duration(1000)
+        .attr("cx", d => newXScale(d[chosenXAxis]))
+        .attr("cy",d => newYScale(d[chosenYAxis]));
+    abbrGroup.transition()
+        .duration(1000)
+        .attr("x",d => newXScale(d[chosenXAxis])-7)
+        .attr("y",d => newYScale(d[chosenYAxis])+5)
 
   return circlesGroup;
 }
@@ -180,9 +184,20 @@ function updateToolTip(chosenXAxis, chosenYAxis, circlesGroup) {
         .append("circle")
         .attr("cx", d => xLinearScale(d[chosenXAxis]))
         .attr("cy", d => yLinearScale(d[chosenYAxis]))
-        .attr("r", 10)
+        .attr("r", 12)
         .attr("fill", "#c8ead3")
         .attr("opacity", ".75");
+
+    // add abbreviations to the circles
+    let textGroup = chartGroup.selectAll(".textGroup")
+        .data(data)
+        .enter()
+        .append("text")
+        .attr("x", d => xLinearScale(d[chosenXAxis])-7)
+        .attr("y", d => yLinearScale(d[chosenYAxis])+5)
+        .attr("fill", "#7ea172")
+        .attr("font-size","11px")
+        .html(d => d["abbr"]);
 
     // Create group for  3 x- axis labels
     const xLabelsGroup = chartGroup.append("g")
@@ -253,7 +268,7 @@ function updateToolTip(chosenXAxis, chosenYAxis, circlesGroup) {
             xAxis = renderXAxes(xLinearScale, xAxis);
 
             // updates circles with new x values
-            circlesGroup = renderCircles(circlesGroup, xLinearScale, yLinearScale, chosenXAxis, chosenYAxis);
+            circlesGroup = renderCircles(circlesGroup, textGroup, xLinearScale, yLinearScale, chosenXAxis, chosenYAxis);
 
             // updates tooltips with new info
             circlesGroup = updateToolTip(chosenXAxis, chosenYAxis, circlesGroup);
@@ -306,7 +321,7 @@ function updateToolTip(chosenXAxis, chosenYAxis, circlesGroup) {
     			// update y axis with new transition
     			yAxis = renderYAxes(yLinearScale, yAxis);
     			// update circles with new y values
-    			circlesGroup = renderCircles(circlesGroup, xLinearScale,yLinearScale,chosenXAxis,chosenYAxis);
+    			circlesGroup = renderCircles(circlesGroup, textGroup, xLinearScale,yLinearScale,chosenXAxis,chosenYAxis);
     			// update Tool Tips
     			circlesGroup = updateToolTip(chosenXAxis,chosenYAxis, circlesGroup);
     			// changes classes to change bold text
